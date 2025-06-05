@@ -2,15 +2,11 @@
 
 A new Flutter project.
 
-## Getting Started
+Este proyecto es una app Flutter que simula una señal de pulso cardiaco con animación de onda. Fue diseñada como demostración visual para fines educativos o de prototipado.
 
-This project is a starting point for a Flutter application.
+## Funcionalidades
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Simulación de pulso (60–100 bpm)
+- Visualización en tiempo real con onda senoidal animada
+- Botón para iniciar/detener
+- Compatible con Android, en este caso se utilizo un emulador con Android Studio 
