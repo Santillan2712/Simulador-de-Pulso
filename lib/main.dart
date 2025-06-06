@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-void main() => runApp(const PulseSimulatorApp());
+void main() {
+  runApp(const PulseSimulatorApp());
+}
 
 class PulseSimulatorApp extends StatelessWidget {
   const PulseSimulatorApp({super.key});
@@ -13,8 +15,8 @@ class PulseSimulatorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Simulador de Pulso',
       theme: ThemeData.dark(),
-      debugShowCheckedModeBanner: false,
       home: const PulseSimulatorScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -28,70 +30,60 @@ class PulseSimulatorScreen extends StatefulWidget {
 
 class _PulseSimulatorScreenState extends State<PulseSimulatorScreen> {
   int bpm = 75;
-  Timer? updateTimer;
+  Timer? bpmTimer;
   Timer? graphTimer;
-  double x = 0;
-  List<FlSpot> wavePoints = [];
   bool isRunning = false;
-  int simulationStep = 0;
-
-  @override
-  void dispose() {
-    updateTimer?.cancel();
-    graphTimer?.cancel();
-    super.dispose();
-  }
+  List<FlSpot> wavePoints = [];
+  double time = 0;
+  final Random random = Random();
 
   void startSimulation() {
-    // Cambia el bpm cada 5 segundos: 100 → 75 → 50 → repetir
-    updateTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    bpmTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       setState(() {
-        simulationStep++;
-        if (simulationStep % 3 == 0) {
-          bpm = 100;
-        } else if (simulationStep % 3 == 1) {
-          bpm = 75;
-        } else {
-          bpm = 50;
-        }
+        bpm = random.nextBool()
+            ? 60 + random.nextInt(40) // Rango normal
+            : random.nextBool()
+                ? 50 + random.nextInt(10) // Rango bajo
+                : 100 + random.nextInt(20); // Rango alto
       });
     });
 
-    // Genera la señal basada en el BPM
     graphTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      double frequency = bpm / 60; // ciclos por segundo
+      double value = _ppgWaveform(time % 1.0) + random.nextDouble() * 0.02;
       setState(() {
-        double period = 60.0 / bpm; // tiempo entre latidos en segundos
-        double t = x % period;
-
-        double y = generatePulseShape(t / period);
-        wavePoints.add(FlSpot(x, y));
-
-        if (wavePoints.length > 120) {
+        time += frequency * 0.05;
+        wavePoints.add(FlSpot(time, value));
+        if (wavePoints.length > 100) {
           wavePoints.removeAt(0);
         }
-
-        x += 0.05;
       });
     });
 
     setState(() => isRunning = true);
   }
 
-  // Onda tipo pulso simulada
-  double generatePulseShape(double phase) {
-    if (phase < 0.1) {
-      return sin(phase * pi * 10); // pico agudo
-    } else if (phase < 0.25) {
-      return 0.3 * sin((phase - 0.1) * pi * 6); // caída
-    } else {
-      return 0.05 * sin((phase - 0.25) * pi * 4); // retorno bajo
-    }
+  void stopSimulation() {
+    bpmTimer?.cancel();
+    graphTimer?.cancel();
+    setState(() {
+      isRunning = false;
+      wavePoints.clear();
+      time = 0;
+    });
   }
 
-  void stopSimulation() {
-    updateTimer?.cancel();
+  double _ppgWaveform(double t) {
+    // Señal tipo PPG modelada artificialmente
+    return exp(-pow((t - 0.2) * 15, 2).toDouble()) +
+        0.4 * exp(-pow((t - 0.35) * 20, 2).toDouble());
+  }
+
+  @override
+  void dispose() {
+    bpmTimer?.cancel();
     graphTimer?.cancel();
-    setState(() => isRunning = false);
+    super.dispose();
   }
 
   @override
@@ -99,32 +91,54 @@ class _PulseSimulatorScreenState extends State<PulseSimulatorScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Simulador de Pulso')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Pulso Simulado:', style: TextStyle(fontSize: 24)),
+            const SizedBox(height: 30),
+            const Text('Pulso Simulado:',
+                style: TextStyle(fontSize: 24, color: Colors.white70)),
             const SizedBox(height: 10),
-            Text('$bpm bpm', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            SizedBox(
-              height: 200,
+            Text('$bpm bpm',
+                style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
+            const SizedBox(height: 30),
+            Expanded(
               child: LineChart(
                 LineChartData(
+                  minY: 0,
+                  maxY: 1.4,
                   titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
                   gridData: FlGridData(show: false),
-                  minY: -0.2,
-                  maxY: 1.2,
+                  borderData: FlBorderData(show: false),
                   lineBarsData: [
                     LineChartBarData(
-                      isCurved: true,
                       spots: wavePoints,
+                      isCurved: true,
                       barWidth: 2,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
                       color: Colors.redAccent,
-                    ),
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          if (index == wavePoints.length - 1) {
+                            return FlDotCirclePainter(
+                              radius: 4,
+                              color: Colors.redAccent,
+                              strokeWidth: 1.5,
+                              strokeColor: Colors.white,
+                            );
+                          } else {
+                            return FlDotCirclePainter(
+                              radius: 0,
+                              color: Colors.transparent,
+                              strokeWidth: 0,
+                              strokeColor: Colors.transparent,
+                            );
+                          }
+                        },
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -140,5 +154,6 @@ class _PulseSimulatorScreenState extends State<PulseSimulatorScreen> {
     );
   }
 }
+
 
 
