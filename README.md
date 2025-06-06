@@ -1,12 +1,16 @@
 # simulador_pulso
 
-A new Flutter project.
+**Simulador de Pulso** 
 
-Este proyecto es una app Flutter que simula una señal de pulso cardiaco con animación de onda. Fue diseñada como demostración visual para fines educativos o de prototipado.
+Es una aplicación desarrollada en Flutter que recrea visualmente una señal de pulso cardíaco. La app muestra una onda animada que representa los latidos del corazón y un valor numérico (en bpm) que indica la frecuencia simulada en tiempo real.
 
-## Funcionalidades
+## ¿Qué hace esta app?
 
-- Simulación de pulso (60–100 bpm)
-- Visualización en tiempo real con onda senoidal animada
-- Botón para iniciar/detener
-- Compatible con Android, en este caso se utilizo un emulador con Android Studio 
+Esta aplicación simula cómo se vería una señal de pulso en un monitor. Los latidos se representan mediante una onda que se mueve de forma fluida, y el valor de pulso cambia para reflejar diferentes ritmos cardíacos. La señal está sincronizada para que el número de latidos por minuto coincida con los picos de la onda.
+
+## Características principales
+
+- Simulación visual del ritmo cardíaco entre 60 y 100 bpm, con variaciones visibles
+- Onda animada sincronizada con el valor de pulso
+- Botón para iniciar o detener la simulación
+- Compatible con dispositivos Android (probado en emulador desde Android Studio)
