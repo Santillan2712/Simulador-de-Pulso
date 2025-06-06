@@ -43,8 +43,8 @@ class _PulseSimulatorScreenState extends State<PulseSimulatorScreen> {
         bpm = random.nextBool()
             ? 60 + random.nextInt(40) // Rango normal
             : random.nextBool()
-                ? 50 + random.nextInt(10) // Rango bajo
-                : 100 + random.nextInt(20); // Rango alto
+            ? 50 + random.nextInt(10) // Rango bajo
+            : 100 + random.nextInt(20); // Rango alto
       });
     });
 
@@ -154,6 +154,5 @@ class _PulseSimulatorScreenState extends State<PulseSimulatorScreen> {
     );
   }
 }
-
 
 
